@@ -1,8 +1,7 @@
 from django.conf import settings
 import urbanairship
-from manticore_tastypie_urbanairship.manticore_tastypie_urbanairship.models import AirshipToken
-from manticore_tastypie_urbanairship.manticore_tastypie_urbanairship.resources import AirshipTokenResource, \
-    NotificationSettingResource
+from .models import AirshipToken
+from .resources import AirshipTokenResource, NotificationSettingResource
 
 
 # Registers this library's resources

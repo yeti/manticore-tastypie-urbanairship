@@ -4,8 +4,7 @@ from tastypie import fields
 from tastypie.exceptions import BadRequest
 from tastypie.utils import now
 from manticore_tastypie_core.manticore_tastypie_core.resources import ManticoreModelResource
-from manticore_tastypie_urbanairship.manticore_tastypie_urbanairship.models import AirshipToken, NotificationSetting, \
-    Notification
+from .models import AirshipToken, NotificationSetting, Notification
 from manticore_tastypie_user.manticore_tastypie_user.authentication import ExpireApiKeyAuthentication
 from manticore_tastypie_user.manticore_tastypie_user.authorization import UserObjectsOnlyAuthorization
 from manticore_tastypie_user.manticore_tastypie_user.resources import UserResource

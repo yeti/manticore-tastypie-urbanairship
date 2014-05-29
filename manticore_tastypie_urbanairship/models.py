@@ -5,7 +5,6 @@ from django.db import models
 from django.db.models.signals import post_save
 from model_utils import Choices
 from manticore_django.manticore_django.models import CoreModel
-from manticore_tastypie_urbanairship.manticore_tastypie_urbanairship.utils import send_push_notification
 
 __author__ = 'rudy'
 
@@ -18,7 +17,7 @@ class AirshipToken(CoreModel):
 
 
 class Notification(CoreModel):
-    TYPES = Choices(*settings.SOCIAL_NOTIFICATION_TYPES)
+    TYPES = Choices(*settings.NOTIFICATION_TYPES)
     notification_type = models.PositiveSmallIntegerField(choices=TYPES)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="receiver", null=True)
     reporter = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="reporter", null=True, blank=True)
@@ -55,6 +54,7 @@ def create_notification(receiver, reporter, content_object, notification_type):
                                                notification_type=notification_type)
     notification.save()
 
+    from .utils import send_push_notification
     send_push_notification(receiver, notification.push_message())
 
 
