@@ -6,6 +6,3 @@
 local_settings.py
 /static
 .idea/
-last.commit
-gunicorn.pid
-log.txt
