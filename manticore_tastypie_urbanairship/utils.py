@@ -8,6 +8,7 @@ from .resources import AirshipTokenResource, NotificationSettingResource
 def register_api(api):
     api.register(AirshipTokenResource())
     api.register(NotificationSettingResource())
+    return api
 
 
 def send_push_notification(receiver, message):
