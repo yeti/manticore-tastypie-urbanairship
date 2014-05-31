@@ -26,15 +26,15 @@ class AirshipTokenResource(ManticoreModelResource):
         if 'token' in bundle.data:
             airship = urbanairship.Airship(settings.AIRSHIP_APP_KEY, settings.AIRSHIP_APP_MASTER_SECRET)
             try:
-                airship.register(bundle.data['token'], alias="%s:%s" % (bundle.request.user.pk, bundle.request.user.username))
+                airship.register(bundle.data['token'], alias="{0}:{1}".format(bundle.request.user.pk,
+                                                                              bundle.request.user.get_username()))
 
                 # Delete other usages of this token (i.e. multiple accounts on one device)
                 AirshipToken.objects.filter(token=bundle.data['token']).delete()
 
                 bundle.obj = AirshipToken(user=bundle.request.user, token=bundle.data['token'])
                 bundle.obj.save()
-            except urbanairship.AirshipFailure as e:
-                print e
+            except urbanairship.AirshipFailure:
                 raise BadRequest("Failed Authentication")
 
             return bundle
