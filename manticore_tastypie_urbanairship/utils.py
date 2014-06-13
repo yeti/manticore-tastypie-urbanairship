@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.core.mail import send_mail
 import urbanairship
 from .models import AirshipToken
 from .resources import AirshipTokenResource, NotificationSettingResource
@@ -25,3 +26,8 @@ def send_push_notification(receiver, message):
                 push.send()
         except urbanairship.AirshipFailure:
             pass
+
+
+def send_email_notification(receiver, message):
+    """ Send email notification """
+    send_mail("Juicero Alert", message, settings.DEFAULT_FROM_EMAIL, [receiver.email])

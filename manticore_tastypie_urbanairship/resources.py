@@ -44,7 +44,6 @@ class AirshipTokenResource(ManticoreModelResource):
 
 class NotificationSettingResource(ManticoreModelResource):
     name = fields.CharField(attribute='name', blank=True)
-    display_name = fields.CharField(attribute='display_name', blank=True)
 
     class Meta:
         queryset = NotificationSetting.objects.all()
@@ -54,12 +53,12 @@ class NotificationSettingResource(ManticoreModelResource):
         resource_name = "notification_setting"
         always_return_data = True
         object_name = "notification_setting"
-        fields = ['id', 'allow', 'name', 'display_name']
+        fields = ['id', 'allow_push', 'allow_email', 'name']
 
 
 class NotificationResource(ManticoreModelResource):
     name = fields.CharField(attribute='name')
-    display_name = fields.CharField(attribute='display_name')
+    message = fields.CharField(attribute='message')
     reporter = fields.ToOneField(UserResource, 'reporter', null=True, full=True)
 
     class Meta:
@@ -69,8 +68,14 @@ class NotificationResource(ManticoreModelResource):
         authentication = ExpireApiKeyAuthentication()
         resource_name = "notification"
         object_name = "notification"
-        fields = ['id', 'created', 'name', 'display_name', 'reporter']
+        fields = ['id', 'created', 'name', 'message', 'reporter']
 
     def get_object_list(self, request=None, **kwargs):
-        date = now() - timedelta(days=settings.NOTIFICATION_WINDOW_HOURS)
-        return super(NotificationResource, self).get_object_list(request).filter(created__gte=date)
+        obj_list = super(NotificationResource, self).get_object_list(request)
+
+        # Limit the list of notifications if we have the setting defined to the past x hours
+        if hasattr(settings, 'NOTIFICATION_WINDOW_HOURS'):
+            date = now() - timedelta(days=settings.NOTIFICATION_WINDOW_HOURS)
+            obj_list = obj_list.filter(created__gte=date)
+
+        return obj_list
