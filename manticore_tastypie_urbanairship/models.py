@@ -104,7 +104,8 @@ def create_notifications(sender, **kwargs):
 
     if kwargs['created']:
         user = kwargs['instance']
-        user_settings = [NotificationSetting(user=user, notification_type=pk) for pk, name in Notification.TYPES]
-        NotificationSetting.objects.bulk_create(user_settings)
+        if not NotificationSetting.objects.filter(user=user).exists():
+            user_settings = [NotificationSetting(user=user, notification_type=pk) for pk, name in Notification.TYPES]
+            NotificationSetting.objects.bulk_create(user_settings)
 
 post_save.connect(create_notifications)
