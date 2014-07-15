@@ -1,8 +1,15 @@
 # -*- coding: utf-8 -*-
+from django.contrib.auth import get_user_model
 from south.utils import datetime_utils as datetime
 from south.db import db
 from south.v2 import SchemaMigration
 from django.db import models
+
+
+User = get_user_model()
+
+user_orm_label = '%s.%s' % (User._meta.app_label, User._meta.object_name)
+user_model_label = '%s.%s' % (User._meta.app_label, User._meta.module_name)
 
 
 class Migration(SchemaMigration):
@@ -13,7 +20,7 @@ class Migration(SchemaMigration):
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('created', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, null=True, blank=True)),
             ('notification_type', self.gf('django.db.models.fields.PositiveSmallIntegerField')()),
-            ('user', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['comps.User'])),
+            ('user', self.gf('django.db.models.fields.related.ForeignKey')(to=orm[user_orm_label])),
             ('allow', self.gf('django.db.models.fields.BooleanField')(default=True)),
         ))
         db.send_create_signal(u'manticore_tastypie_urbanairship', ['NotificationSetting'])
@@ -26,8 +33,8 @@ class Migration(SchemaMigration):
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('created', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, null=True, blank=True)),
             ('notification_type', self.gf('django.db.models.fields.PositiveSmallIntegerField')()),
-            ('user', self.gf('django.db.models.fields.related.ForeignKey')(related_name='receiver', null=True, to=orm['comps.User'])),
-            ('reporter', self.gf('django.db.models.fields.related.ForeignKey')(blank=True, related_name='reporter', null=True, to=orm['comps.User'])),
+            ('user', self.gf('django.db.models.fields.related.ForeignKey')(related_name='receiver', null=True, to=orm[user_orm_label])),
+            ('reporter', self.gf('django.db.models.fields.related.ForeignKey')(blank=True, related_name='reporter', null=True, to=orm[user_orm_label])),
             ('content_type', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['contenttypes.ContentType'])),
             ('object_id', self.gf('django.db.models.fields.PositiveIntegerField')(db_index=True)),
         ))
@@ -37,7 +44,7 @@ class Migration(SchemaMigration):
         db.create_table(u'manticore_tastypie_urbanairship_airshiptoken', (
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('created', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, null=True, blank=True)),
-            ('user', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['comps.User'])),
+            ('user', self.gf('django.db.models.fields.related.ForeignKey')(to=orm[user_orm_label])),
             ('token', self.gf('django.db.models.fields.CharField')(max_length=100)),
             ('expired', self.gf('django.db.models.fields.BooleanField')(default=False)),
         ))
@@ -72,8 +79,8 @@ class Migration(SchemaMigration):
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '50'})
         },
-        u'comps.user': {
-            'Meta': {'object_name': 'User'},
+        user_model_label: {
+            'Meta': {'object_name': User.__name__, 'db_table': "'%s'" % User._meta.db_table},
             'date_joined': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
             'email': ('django.db.models.fields.EmailField', [], {'unique': 'True', 'max_length': '75', 'blank': 'True'}),
             'groups': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'related_name': "u'user_set'", 'blank': 'True', 'to': u"orm['auth.Group']"}),
@@ -100,7 +107,7 @@ class Migration(SchemaMigration):
             'expired': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'token': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
-            'user': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['comps.User']"})
+            'user': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['{0}']".format(user_orm_label)})
         },
         u'manticore_tastypie_urbanairship.notification': {
             'Meta': {'ordering': "['-created']", 'object_name': 'Notification'},
@@ -109,8 +116,8 @@ class Migration(SchemaMigration):
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'notification_type': ('django.db.models.fields.PositiveSmallIntegerField', [], {}),
             'object_id': ('django.db.models.fields.PositiveIntegerField', [], {'db_index': 'True'}),
-            'reporter': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'reporter'", 'null': 'True', 'to': u"orm['comps.User']"}),
-            'user': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'receiver'", 'null': 'True', 'to': u"orm['comps.User']"})
+            'reporter': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'reporter'", 'null': 'True', 'to': u"orm['{0}']".format(user_orm_label)}),
+            'user': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'receiver'", 'null': 'True', 'to': u"orm['{0}']".format(user_orm_label)})
         },
         u'manticore_tastypie_urbanairship.notificationsetting': {
             'Meta': {'unique_together': "(('notification_type', 'user'),)", 'object_name': 'NotificationSetting'},
@@ -118,7 +125,7 @@ class Migration(SchemaMigration):
             'created': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'null': 'True', 'blank': 'True'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'notification_type': ('django.db.models.fields.PositiveSmallIntegerField', [], {}),
-            'user': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['comps.User']"})
+            'user': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['{0}']".format(user_orm_label)})
         }
     }
 
