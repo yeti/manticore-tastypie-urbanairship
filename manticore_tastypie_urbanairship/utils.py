@@ -15,7 +15,8 @@ def register_api(api):
 def send_push_notification(receiver, message):
     if AirshipToken.objects.filter(user=receiver, expired=False).exists():
         try:
-            device_tokens = list(AirshipToken.objects.filter(user=receiver, expired=False).values_list('token', flat=True))
+            device_tokens = list(AirshipToken.objects.filter(user=receiver, expired=False).values_list('token',
+                                                                                                       flat=True))
             airship = urbanairship.Airship(settings.AIRSHIP_APP_KEY, settings.AIRSHIP_APP_MASTER_SECRET)
 
             for device_token in device_tokens:
@@ -30,4 +31,4 @@ def send_push_notification(receiver, message):
 
 def send_email_notification(receiver, message):
     """ Send email notification """
-    send_mail("Juicero Alert", message, settings.DEFAULT_FROM_EMAIL, [receiver.email])
+    send_mail(settings.EMAIL_NOTIFICATION_SUBJECT, message, settings.DEFAULT_FROM_EMAIL, [receiver.email])

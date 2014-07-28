@@ -86,7 +86,7 @@ def create_notification(receiver, reporter, content_object, notification_type):
 
 class NotificationSetting(CoreModel):
     notification_type = models.PositiveSmallIntegerField(choices=Notification.TYPES)
-    user = models.ForeignKey(settings.AUTH_USER_MODEL)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='notification_settings')
     allow_push = models.BooleanField(default=True)
     allow_email = models.BooleanField(default=True)
 
@@ -104,7 +104,7 @@ def create_notifications(sender, **kwargs):
 
     if kwargs['created']:
         user = kwargs['instance']
-        if not NotificationSetting.objects.filter(user=user).exists():
+        if not user.notification_settings.exists():
             user_settings = [NotificationSetting(user=user, notification_type=pk) for pk, name in Notification.TYPES]
             NotificationSetting.objects.bulk_create(user_settings)
 
