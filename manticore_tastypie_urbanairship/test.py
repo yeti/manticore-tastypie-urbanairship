@@ -9,7 +9,8 @@ class SettingsTests(ManticomResourceTestCase):
     def setUp(self):
         super(SettingsTests, self).setUp()
 
-        self.user = User.objects.create_user(email='testuser@gmail.com')
+        user_data = {'email': 'testuser@gmail.com', User.USERNAME_FIELD: 'testuser@gmail.com'}
+        self.user = User.objects.create_user(**user_data)
 
     def test_notification_settings_get_manticom(self):
         self.assertManticomGETResponse('notification_setting', 'notification_setting', '$notificationSetting',
