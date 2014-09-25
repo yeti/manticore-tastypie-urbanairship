@@ -13,11 +13,6 @@ class Command(BaseCommand):
     help = 'Creates missing notification settings for existing users'
 
     def handle(self, *args, **options):
-        NotificationSetting.objects.all().delete()
-
         for user in User.objects.all():
             for pk, name in Notification.TYPES:
-                try:
-                    NotificationSetting.objects.get_or_create(notification_type=pk, user=user)
-                except:
-                    pass
+                NotificationSetting.objects.get_or_create(notification_type=pk, user=user)
