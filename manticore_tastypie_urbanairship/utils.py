@@ -1,5 +1,6 @@
 from django.conf import settings
-from django.core.mail import send_mail
+from django.core.mail import EmailMultiAlternatives
+from django.utils.html import strip_tags
 import urbanairship
 from .models import AirshipToken
 from .resources import AirshipTokenResource, NotificationSettingResource
@@ -30,5 +31,8 @@ def send_push_notification(receiver, message):
 
 
 def send_email_notification(receiver, message):
-    """ Send email notification """
-    send_mail(settings.EMAIL_NOTIFICATION_SUBJECT, message, settings.DEFAULT_FROM_EMAIL, [receiver.email])
+    text_content = strip_tags(message)
+    msg = EmailMultiAlternatives(settings.EMAIL_NOTIFICATION_SUBJECT, text_content, settings.DEFAULT_FROM_EMAIL,
+                                 [receiver.email])
+    msg.attach_alternative(message, "text/html")
+    msg.send()

@@ -20,6 +20,9 @@ class AirshipToken(CoreModel):
 
 class Notification(CoreModel):
     TYPES = Choices(*settings.NOTIFICATION_TYPES)
+    PUSH = "push"
+    EMAIL = "email"
+
     notification_type = models.PositiveSmallIntegerField(choices=TYPES)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="receiver", null=True)
     reporter = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="reporter", null=True, blank=True)
@@ -28,7 +31,7 @@ class Notification(CoreModel):
     object_id = models.PositiveIntegerField(db_index=True)
     content_object = generic.GenericForeignKey()
 
-    def message(self):
+    def message(self, location):
         """
         Takes our configured notifications and creates a message
         replacing the appropriate variables from the content object
@@ -36,23 +39,25 @@ class Notification(CoreModel):
 
         # TODO: Right now assumes the content_object has identifier defined
         data = {
-            'identifier': self.content_object.identifier,
+            'identifier': self.content_object.identifier(),
+            'reporter': self.reporter.identifier()
         }
 
         if hasattr(self.content_object, 'extra_notification_params'):
             data.update(self.content_object.extra_notification_params())
 
-        return render_to_string(unicode(Notification.TYPES._triples[self.notification_type][2]), data)
+        template_name = unicode(Notification.TYPES._triples[self.notification_type][2])
+        return render_to_string("notifications/{}/{}".format(location, template_name), data)
 
     def email_message(self):
-        # TODO: This will have to change to a longer form for email
-        return self.push_message()
+        return self.message(Notification.EMAIL)
 
     def push_message(self):
+        message = self.message(Notification.PUSH)
         if self.reporter:
-            return "{0} {1}".format(self.reporter, self.message())
+            return "{0} {1}".format(self.reporter, message)
         else:
-            return "{0}".format(self.message())
+            return "{0}".format(message)
 
     def name(self):
         return u"{0}".format(Notification.TYPES._triples[self.notification_type][1])

@@ -58,8 +58,11 @@ class NotificationSettingResource(ManticoreModelResource):
 
 class NotificationResource(ManticoreModelResource):
     name = fields.CharField(attribute='name')
-    message = fields.CharField(attribute='message')
+    message = fields.CharField()
     reporter = fields.ToOneField(UserResource, 'reporter', null=True, full=True)
+
+    def dehydrate_message(self, bundle):
+        return bundle.obj.message(Notification.PUSH)
 
     class Meta:
         queryset = Notification.objects.all()
