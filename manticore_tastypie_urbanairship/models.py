@@ -24,6 +24,7 @@ class Notification(CoreModel):
     EMAIL = "email"
 
     notification_type = models.PositiveSmallIntegerField(choices=TYPES)
+    template_override = models.CharField(max_length=100, blank=True, null=True)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="receiver", null=True)
     reporter = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="reporter", null=True, blank=True)
 
@@ -46,7 +47,8 @@ class Notification(CoreModel):
         if hasattr(self.content_object, 'extra_notification_params'):
             data.update(self.content_object.extra_notification_params())
 
-        template_name = unicode(Notification.TYPES._triples[self.notification_type][2])
+        configured_template_name = unicode(Notification.TYPES._triples[self.notification_type][2])
+        template_name = self.template_override if self.template_override else configured_template_name
         return render_to_string("notifications/{}/{}".format(location, template_name), data)
 
     def email_message(self):
@@ -67,7 +69,7 @@ class Notification(CoreModel):
 
 
 @task
-def create_notification(receiver, reporter, content_object, notification_type):
+def create_notification(receiver, reporter, content_object, notification_type, template_override=None):
     # If the receiver of this notification is the same as the reporter or
     # if the user has blocked this type, then don't create
     if receiver == reporter:
@@ -76,7 +78,8 @@ def create_notification(receiver, reporter, content_object, notification_type):
     notification = Notification.objects.create(user=receiver,
                                                reporter=reporter,
                                                content_object=content_object,
-                                               notification_type=notification_type)
+                                               notification_type=notification_type,
+                                               template_override=template_override)
     notification.save()
 
     notification_setting = NotificationSetting.objects.get(notification_type=notification_type, user=receiver)
