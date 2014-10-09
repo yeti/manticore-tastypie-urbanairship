@@ -69,7 +69,7 @@ class Notification(CoreModel):
 
 
 @task
-def create_notification(receiver, reporter, content_object, notification_type, template_override=None):
+def create_notification(receiver, reporter, content_object, notification_type, template_override=None, reply_to=None):
     # If the receiver of this notification is the same as the reporter or
     # if the user has blocked this type, then don't create
     if receiver == reporter:
@@ -89,7 +89,7 @@ def create_notification(receiver, reporter, content_object, notification_type, t
 
     if notification_setting.allow_email:
         from .utils import send_email_notification
-        send_email_notification(receiver, notification.email_message())
+        send_email_notification(receiver, notification.email_message(), reply_to=reply_to)
 
 
 class NotificationSetting(CoreModel):
