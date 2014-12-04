@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.contrib.contenttypes import generic
 from django.contrib.contenttypes.models import ContentType
+from django.contrib.sites.models import Site
 from django.db import models
 from django.db.models.signals import post_save
 from django.template.loader import render_to_string
@@ -40,6 +41,7 @@ class Notification(CoreModel):
 
         # TODO: Right now assumes the content_object has identifier defined
         data = {
+            'domain': Site.objects.get_current(),
             'identifier': self.content_object.identifier(),
             'reporter': self.reporter.identifier()
         }
