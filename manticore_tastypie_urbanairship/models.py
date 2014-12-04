@@ -43,7 +43,7 @@ class Notification(CoreModel):
         data = {
             'domain': Site.objects.get_current(),
             'identifier': self.content_object.identifier(),
-            'reporter': self.reporter.identifier()
+            'reporter': self.reporter.identifier() if self.reporter else ''
         }
 
         if hasattr(self.content_object, 'extra_notification_params'):
